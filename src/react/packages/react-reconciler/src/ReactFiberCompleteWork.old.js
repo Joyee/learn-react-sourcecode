@@ -793,6 +793,8 @@ function completeWork(
   workInProgress: Fiber,
   renderLanes: Lanes,
 ): Fiber | null {
+  console.log('[completeWork]', workInProgress.type, workInProgress.tag);
+
   const newProps = workInProgress.pendingProps;
 
   switch (workInProgress.tag) {

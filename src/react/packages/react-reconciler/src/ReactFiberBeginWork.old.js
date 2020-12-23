@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -249,12 +250,16 @@ if (__DEV__) {
   didWarnAboutDefaultPropsOnFunctionComponent = {};
 }
 
+// Reconcile模块的核心部分
 export function reconcileChildren(
   current: Fiber | null,
   workInProgress: Fiber,
   nextChildren: any,
   renderLanes: Lanes,
 ) {
+  // 不论走哪个逻辑 最终都会生成新的子Fiber节点并且赋值给workInProgress.child，作为本次beginWork的返回值
+  
+  // 对于mount的组件 创建新的子Fiber节点
   if (current === null) {
     // If this is a fresh new component that hasn't been rendered yet, we
     // won't update its child set by applying minimal side-effects. Instead,
@@ -267,6 +272,8 @@ export function reconcileChildren(
       renderLanes,
     );
   } else {
+    // 对于update的组件 它会将当前组件与该组件在上次更新时对应的Fiber节点做比较，也就是diff算法。将比较的结果生成新的Fiber节点
+
     // If the current child is the same as the work in progress, it means that
     // we haven't yet started any work on these children. Therefore, we use
     // the clone algorithm to create a copy of all the current children.
@@ -3214,12 +3221,19 @@ function remountFiber(
     );
   }
 }
-
+// current 当前组件对应的Fiber节点在上一次更新的Fiber节点 即 workInProgress.alternate
+// workInProgress 当前组件对应的Fiber节点
+// renderLanes: 优先级相关 (Scheduler)
+// 除了rootFiber以外 组件mount时 current === null
+// update: current !== null
+// 可以通过current === null 来判断组件是处于mount还是update
 function beginWork(
   current: Fiber | null,
   workInProgress: Fiber,
   renderLanes: Lanes,
 ): Fiber | null {
+  console.log('[beginwork-current]', current);
+  console.log('[beginWork-workInProgress]', workInProgress);
   const updateLanes = workInProgress.lanes;
 
   if (__DEV__) {
@@ -3240,6 +3254,10 @@ function beginWork(
     }
   }
 
+  // update
+  // didReceiveUpdate = false 表示直接复用前一次更新的子Fiber 不需要新建子Fiber
+  // 需要满足条件: 1.oldProps === newProps && workInProgress === current.type 即props与fiber.type不变;
+  // 2. !includesSomeLane(renderLanes, updateLanes)即当前Fiber节点优先级不够
   if (current !== null) {
     const oldProps = current.memoizedProps;
     const newProps = workInProgress.pendingProps;
@@ -3442,6 +3460,7 @@ function beginWork(
           break;
         }
       }
+      // 复用current
       return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
     } else {
       if ((current.flags & ForceUpdateForLegacySuspense) !== NoFlags) {
@@ -3467,6 +3486,7 @@ function beginWork(
   // move this assignment out of the common path and into each branch.
   workInProgress.lanes = NoLanes;
 
+  // mount时 根据tag不同 创建不同的子Fiber节点
   switch (workInProgress.tag) {
     case IndeterminateComponent: {
       return mountIndeterminateComponent(

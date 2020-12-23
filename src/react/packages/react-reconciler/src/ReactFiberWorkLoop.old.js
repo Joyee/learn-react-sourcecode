@@ -1697,11 +1697,14 @@ function workLoopConcurrent() {
     performUnitOfWork(workInProgress);
   }
 }
-
+// 创建fiber节点复赋值给workInProgress 并将workInProgress与已创建的Fiber节点连接起来构成fiber树
+// “递”: 从rootFiber向下深度优先遍历，为遍历到的每个fiber节点调用beginWork方法
+// “归”
 function performUnitOfWork(unitOfWork: Fiber): void {
   // The current, flushed, state of this fiber is the alternate. Ideally
   // nothing should rely on this, but relying on it here means that we don't
   // need an additional field on the work in progress.
+  console.log('[performUnitOfWork]');
   const current = unitOfWork.alternate;
   setCurrentDebugFiberInDEV(unitOfWork);
 

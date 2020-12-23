@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -261,6 +262,7 @@ function resolveLazy(lazyType) {
 // to be able to optimize each path individually by branching early. This needs
 // a compiler or we can do it manually. Helpers that don't need this branching
 // live outside of this function.
+// shouldTrackSideEffects作用是判断是否要增加一些effectTag，主要是用来优化初次渲染的
 function ChildReconciler(shouldTrackSideEffects) {
   function deleteChild(returnFiber: Fiber, childToDelete: Fiber): void {
     if (!shouldTrackSideEffects) {
